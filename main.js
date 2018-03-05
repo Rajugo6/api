@@ -1,174 +1,271 @@
-window.onload = function() {
-    cargarTopPagina();
-	cargarPartidos("Primera División");
-	descargaLiga(1);
-};
-
-function cargarTopPagina(){
-	document.getElementById("top").innerHTML ="<h2'>Bienvenido al portal de la Premier y la Liga </h2><div id='bts'>" +
-		"<input id='btpremier' type='button' onclick='descargaLiga(10);' value='Premier League'/>" +
-		"<input id='btsantander' type='button' onclick='descargaLiga(1);' value='Liga Santander'/>";
+window.onload= function(){
+    cargarTop();
+	cargarFiltros();
+	cargarArenas();
 }
-function cargarPartidos(ligacorrecta)
-{
-    	// 1.-Instancia del objeto XMLHttpRequest
-	if (window.XMLHttpRequest) {
-		peticion_httpPartidos = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // navegadores obsoletos
-		peticion_httpPartidos = new ActiveXObject("Microsoft.XMLHTTP");
-	}
-
-	// 2.-Preparar la funcion de respuesta
-	peticion_httpPartidos.onreadystatechange = muestraContenido;
-
-	// 3.-Realizar peticion HTTP
-	var url = "https://apiclient.resultados-futbol.com/scripts/api/api.php?key=8dd68e754962cedfed36e2951bf5e25b&tz=Europe/Madrid&format=json&req=matchsday&date=" + new Date().toJSON().slice(0,10);
-	peticion_httpPartidos.open('GET', url, true);
-    peticion_httpPartidos.send(null);
-	var insertar="";
-	var introducida=false;
-	function muestraContenido() {
-		if (peticion_httpPartidos.readyState == 4 && peticion_httpPartidos.status == 200) {
-
-				// se recoge el doc con notacion json
-				var respuesta_json = peticion_httpPartidos.responseText;
-				objeto_json = eval("(" + respuesta_json + ")");
-				var cont=0;
-				var liga = new Array(objeto_json.matches.length);
-                var local = new Array(objeto_json.matches.length);
-                var visitante = new Array(objeto_json.matches.length);
-                var hora = new Array(objeto_json.matches.length);
-                var minuto = new Array(objeto_json.matches.length);
-                var status = new Array(objeto_json.matches.length);
-                var resultado= new Array(objeto_json.matches.length);
-                var localico = new Array(objeto_json.matches.length);
-				var visitanteico = new Array(objeto_json.matches.length);
-				var insertar="<h2 align='center'>Partidos del dia de hoy</h2>";
-				for ( var i = 0; i < objeto_json.matches.length; i++)
-				{	
-                    liga[i]=objeto_json.matches[i].competition_name;
-                    local[i]=objeto_json.matches[i].local_abbr;
-                    visitante[i]=objeto_json.matches[i].visitor_abbr;
-                    status[i]=objeto_json.matches[i].status;
-                    resultado[i]=objeto_json.matches[i].result;
-                    localico[i]=objeto_json.matches[i].local_shield;
-					visitanteico[i]=objeto_json.matches[i].visitor_shield;
-                    if(!introducida && liga[i]==ligacorrecta)
-                    {
-						insertar+= "<p align='center'>" + liga[i] + "</p>";
-						cont++;
-						introducida=true;
-                    }
-					insertar+="<div align='center'id='partido'>";
-					if(liga[i]==ligacorrecta)
-					{
-						cont++;
-						if (status[i]==-1)
-						{
-							hora[i]=objeto_json.matches[i].hour + ":" + objeto_json.matches[i].minute;
-							insertar+="<a id='hora'>" + hora[i] +" -</a>";
-						}
-						else if(status[i]==0)
-						{
-							minuto[i]=objeto_json.matches[i].live_minute;
-							insertar+="<a id='hora'>" + minuto[i] +" -</a>";
-						}
-						else if(status[i]==1)
-						{
-							minuto[i]="fin";
-							insertar+="<a id='hora'>" + hora[i] +" -</a>";
-						}
-						insertar+="<img id='icono' src=" + localico[i] + "/>" + "<a>" + local[i] + " " +resultado[i] + " " + visitante[i] +
-								"<a/><img id='icono' src=" + visitanteico[i] + "/></div>"; 
-					}
-				}
-				if(cont==0)
-				{
-					insertar="<h2 align='center'> No existen partidos programados para hoy<h2>"
-				}
-				document.getElementById("partidos").innerHTML = insertar;
-			}
-	}
+function cargarTop(){
+    document.getElementById("top").innerHTML="<img align='center' id='cabecera'src='Cabecera.png'/>";
 }
-function descargaLiga(liga)
+function cargarFiltros()
 {
-	var premier = "Premier League";
-	var lsantander = "Primera División";
-	if(liga==1)
-	{
-		cargarPartidos(lsantander);
-	}
-	else if(liga==10)
-	{
-		cargarPartidos(premier);
-	}
-	if (window.XMLHttpRequest) {
-		peticion_httpLiga = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // navegadores obsoletos
-		peticion_httpLiga = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	document.getElementById("filtros").innerHTML='<p><strong>Rareza:</strong><a id="Common" href="#" onClick="cartasRareza(this.id)" class="boton_1">Comunes</a>' +
+										'<a id="Rare" href="#" onClick="cartasRareza(this.id)" class="boton_1">Raras</a>' +
+										'<a id="Epic" href="#" onClick="cartasRareza(this.id)" class="boton_1">Epicas</a>' +
+										'<a id="Legendary" href="#" onClick="cartasRareza(this.id)" class="boton_1">Legendarias</a></p>' +
 
+										'<p><strong>Tipo:</strong><a id="Spell" href="#" onClick="cartasTipo(this.id)" class="boton_2">Hechizos</a>' +
+										'<a id="Troop" href="#" onClick="cartasTipo(this.id)" class="boton_2">Tropas</a>' +
+										'<a id="Building" href="#" onClick="cartasTipo(this.id)" class="boton_2">Edificios</a>' +
+										'<p><a href="#" onClick="cargarArenas()" class="boton_1">Arenas</a></p>';
+
+}
+function cargarCartasArena(){
+    if (window.XMLHttpRequest) {
+		peticion_httpCartasArena = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // navegadores obsoletos
+		peticion_httpCartasArena = new ActiveXObject("Microsoft.XMLHTTP");
+	}
 	// 2.-Preparar la funcion de respuesta
-	peticion_httpLiga.onreadystatechange = muestraContenido;
-	var url = "https://apiclient.resultados-futbol.com/scripts/api/api.php?key=8dd68e754962cedfed36e2951bf5e25b&tz=Europe/Madrid&format=json&req=tables&league="+liga+"&group=1";
-	peticion_httpLiga.open('GET', url, true);
-	peticion_httpLiga.send(null);
-	var insertarTabla="<table id='clasificacion'><tr><td>Posición</td><td>Equipo</td><td>Nombre</td>" +
-					"<td>Puntos</td><td>Victorias</td><td>Empates</td><td>Derrotas</td><td>A Favor</td>" +
-					"<td>En contra</td><td>Diferencia</td><td>Racha</td></tr>"
-	function muestraContenido() {
-		if (peticion_httpLiga.readyState == 4 && peticion_httpLiga.status == 200)
+	peticion_httpCartasArena.onreadystatechange = muestraContenido;
+	var url = 'http://www.clashapi.xyz/api/cards';
+	peticion_httpCartasArena.open('GET', url, true);
+	peticion_httpCartasArena.send(null);
+	function muestraContenido(){
+		if (peticion_httpCartasArena.readyState == 4 && peticion_httpCartasArena.status == 200)
 		{
-			var respuesta_json = peticion_httpLiga.responseText;
+			var respuesta_json = peticion_httpCartasArena.responseText;
 			var objeto_json = eval("(" + respuesta_json + ")");
-			var basealias = new Array(objeto_json.table.length);
-			var posicion = new Array(objeto_json.table.length);
-			var equipo = new Array(objeto_json.table.length);
-			var nombre = new Array(objeto_json.table.length);
-			var puntos = new Array(objeto_json.table.length);
-			var victorias = new Array(objeto_json.table.length);
-			var empates = new Array(objeto_json.table.length);
-			var derrotas = new Array(objeto_json.table.length);
-			var gaf = new Array(objeto_json.table.length);
-			var gec = new Array(objeto_json.table.length);
-			var dg = new Array(objeto_json.table.length);
-			var racha = new Array(objeto_json.table.length);
-			for ( var i = 0; i < objeto_json.table.length; i++)
+			var imagenes0='';
+			var imagenes1='';
+			var imagenes2='';
+			var imagenes3='';
+			var imagenes4='';
+			var imagenes5='';
+			var imagenes6='';
+			var imagenes7='';
+			var imagenes8='';
+			var imagenes9='';
+			var imagenes10='';
+			var imagenes11='';
+			for ( var i = 0; i < objeto_json.length; i++)
 			{
-				basealias[i]=objeto_json.table[i].basealias;
-				posicion[i]=objeto_json.table[i].pos;
-				equipo[i]=objeto_json.table[i].shield;
-				nombre[i]=objeto_json.table[i].team;
-				puntos[i]=objeto_json.table[i].points;
-				victorias[i]=objeto_json.table[i].wins;
-				empates[i]=objeto_json.table[i].draws;
-				derrotas[i]=objeto_json.table[i].losses;
-				gaf[i]=objeto_json.table[i].gf;
-				gec[i]=objeto_json.table[i].ga;
-				dg[i]=objeto_json.table[i].avg;
-				racha[i]=objeto_json.table[i].form;
-				var estado = racha[i].split("");
-				var forma="";
-				for(var j=0;j<5;j++)
-				{
-					switch (estado[j]) {
-						case "w":
-							forma +="V";
-							break;
-						case "d":
-							forma +="E";
-							break;
-						case "l":
-							forma +="D";
-							break;
-					}
+				switch (objeto_json[i].arena) {
+					case 0:
+						imagenes0+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 1:
+						imagenes1+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 2:
+						imagenes2+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 3:
+						imagenes3+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 4:
+						imagenes4+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 5:
+						imagenes5+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 6:
+						imagenes6+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 7:
+						imagenes7+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 8:
+						imagenes8+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 9:
+						imagenes9+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 10:
+						imagenes10+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					case 11:
+						imagenes11+='<img class="cartaArena" id="' + objeto_json[i].idName +'" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+							'onclick="estadisticas(this.id)"/>';
+						break;
+					default:
+						break;
 				}
-				insertarTabla+="<tr><td>" + posicion[i] +"</td><td><img id='icono' src='" + equipo[i] + "'/></td>" +
-								"<td>" +nombre[i] + "</td><td>" + puntos[i] + "</td><td>" + victorias[i] + "</td><td>" + empates[i] +
-								"</td><td>" + derrotas[i] + "</td><td>" + gaf[i] + "</td><td>" + gec[i] + "</td><td>" + dg[i] + 
-								"</td><td>" + forma +"</td></tr>";
 			}
-			document.getElementById("wrap").innerHTML = insertarTabla;
+			document.getElementById(0).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes0 + '</div>';
+			document.getElementById(1).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes1 + '</div>';
+			document.getElementById(2).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes2 + '</div>';
+			document.getElementById(3).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes3 + '</div>';
+			document.getElementById(4).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes4 + '</div>';
+			document.getElementById(5).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes5 + '</div>';
+			document.getElementById(6).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes6 + '</div>';
+			document.getElementById(7).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes7 + '</div>';
+			document.getElementById(8).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes8 + '</div>';
+			document.getElementById(9).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes9 + '</div>';
+			document.getElementById(10).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes10 + '</div>';
+			document.getElementById(11).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p>' + imagenes11 + '</div>';
+			document.getElementById(12).innerHTML+='<div id="cartas"><p><strong>Cartas desbloqueadas en esta arena</strong></p><h2>No se desbloquean cartas en esta arena</h2></div>';
+		}
+	}
+}
+function cargarArenas()
+{
+	if (window.XMLHttpRequest) {
+		peticion_httpArenas = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // navegadores obsoletos
+		peticion_httpArenas = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+
+	// 2.-Preparar la funcion de respuesta
+	peticion_httpArenas.onreadystatechange = muestraContenido;
+	var url = "http://www.clashapi.xyz/api/arenas";
+	peticion_httpArenas.open('GET', url, true);
+	peticion_httpArenas.send(null);
+	var arenas="";
+	var imagenesCartas="";
+	function muestraContenido() {
+		if (peticion_httpArenas.readyState == 4 && peticion_httpArenas.status == 200)
+		{
+			var respuesta_jsonArenas = peticion_httpArenas.responseText;
+			var objeto_jsonArenas = eval("(" + respuesta_jsonArenas + ")");
+			var nombreArena = new Array(objeto_jsonArenas.length);
+			var idArena = new Array(objeto_jsonArenas.length);
+			var copasArena = new Array(objeto_jsonArenas.length);
+			var ncartasArena = new Array(objeto_jsonArenas.length);
+			for ( var i = 0; i < objeto_jsonArenas.length; i++)
+			{
+				nombreArena[i]=objeto_jsonArenas[i].name;
+				idArena[i]=objeto_jsonArenas[i].idName;
+				copasArena[i]=objeto_jsonArenas[i].minTrophies;
+				ncartasArena[i]=objeto_jsonArenas[i].cardUnlocks.length;
+				arenas+='<div class="fila" id="'+i+'"><div id="informacion"><h2>' + nombreArena[i] +
+				'</h2><p><strong>Copas mínimas:</strong> ' + copasArena[i] + 
+				'</p><img id="arena" src="http://www.clashapi.xyz/images/arenas/' +idArena[i]+'.png"/></div></div>';
+			}
+			document.getElementById("resultado").innerHTML=arenas;
+			cargarCartasArena();
+		}	
+	}
+}
+function estadisticas(carta)
+{
+	if (window.XMLHttpRequest) {
+		peticion_httpCarta = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // navegadores obsoletos
+		peticion_httpCarta = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	// 2.-Preparar la funcion de respuesta
+	peticion_httpCarta.onreadystatechange = muestraContenido;
+	var url = 'http://www.clashapi.xyz/api/cards/' + carta;
+	peticion_httpCarta.open('GET', url, true);
+	peticion_httpCarta.send(null);
+	function muestraContenido(){
+		if (peticion_httpCarta.readyState == 4 && peticion_httpCarta.status == 200)
+		{
+			var respuesta_json = peticion_httpCarta.responseText;
+			var objeto_json = eval("(" + respuesta_json + ")");
+			document.getElementById("resultado").innerHTML ='<div class="fila"><div id="informacion"><h2>' + objeto_json.name + '</h2>' +
+			'<p><strong>Rareza: </strong>' + objeto_json.rarity + '<p/><p><strong>Tipo: </strong>' + objeto_json.type +
+			'</p><p><strong>Descripcion</strong>' + objeto_json.description + '</p><p><strong>Coste de elixir: </strong>' +
+			objeto_json.elixirCost + '</p></div><img src ="http://www.clashapi.xyz/images/cards/' +carta +'.png"/></div>';
+		}
+	}
+}
+function cartasRareza(rareza)
+{
+	if (window.XMLHttpRequest) {
+		peticion_httpCarta = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // navegadores obsoletos
+		peticion_httpCarta = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	// 2.-Preparar la funcion de respuesta
+	peticion_httpCarta.onreadystatechange = muestraContenido;
+	var url = 'http://www.clashapi.xyz/api/cards/';
+	peticion_httpCarta.open('GET', url, true);
+	peticion_httpCarta.send(null);
+	function muestraContenido(){
+		if (peticion_httpCarta.readyState == 4 && peticion_httpCarta.status == 200)
+		{
+			var respuesta_json = peticion_httpCarta.responseText;
+			var objeto_json = eval("(" + respuesta_json + ")");
+			var cartas="";
+			var cont=0;
+			for(var i=0;i<objeto_json.length;i++)
+			{
+				if(objeto_json[i].rarity==rareza)
+				{
+					if(cont%2==0)
+					{
+						cartas+='<div class="filaFiltrosPar"><div id="informacion"><h2>' + objeto_json[i].name +'</h2><p><strong>Descripcion:</strong> '+ 
+						objeto_json[i].description +'</p><p><strong>Coste de elixir:</strong> '+ objeto_json[i].elixirCost +
+						'</p></div><img class="carta" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+						'/></div>';
+					}
+					else
+					{
+						cartas+='<div class="filaFiltrosImpar"><div id="informacion"><h2>' + objeto_json[i].name +'</h2><p><strong>Descripcion:</strong> '+ 
+						objeto_json[i].description +'</p><p><strong>Coste de elixir:</strong> '+ objeto_json[i].elixirCost +
+						'</p></div><img class="carta" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+						'/></div>';
+					}
+					cont++;
+				}
+			}
+			document.getElementById("resultado").innerHTML=cartas;
+		}
+	}
+}
+function cartasTipo(tipo)
+{
+	if (window.XMLHttpRequest) {
+		peticion_httpCarta = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // navegadores obsoletos
+		peticion_httpCarta = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	// 2.-Preparar la funcion de respuesta
+	peticion_httpCarta.onreadystatechange = muestraContenido;
+	var url = 'http://www.clashapi.xyz/api/cards/';
+	peticion_httpCarta.open('GET', url, true);
+	peticion_httpCarta.send(null);
+	function muestraContenido(){
+		if (peticion_httpCarta.readyState == 4 && peticion_httpCarta.status == 200)
+		{
+			var respuesta_json = peticion_httpCarta.responseText;
+			var objeto_json = eval("(" + respuesta_json + ")");
+			var cartas="";
+			var cont=0;
+			for(var i=0;i<objeto_json.length;i++)
+			{
+				if(objeto_json[i].type==tipo)
+				{
+					if(cont%2==0)
+					{
+						cartas+='<div class="filaFiltrosPar"><div id="informacion"><h2>' + objeto_json[i].name +'</h2><p><strong>Descripcion:</strong> '+ 
+						objeto_json[i].description +'</p><p><strong>Coste de elixir:</strong> '+ objeto_json[i].elixirCost +
+						'</p></div><img class="carta" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+						'/></div>';
+					}
+					else
+					{
+						cartas+='<div class="filaFiltrosImpar"><div id="informacion"><h2>' + objeto_json[i].name +'</h2><p><strong>Descripcion:</strong> '+ 
+						objeto_json[i].description +'</p><p><strong>Coste de elixir:</strong> '+ objeto_json[i].elixirCost +
+						'</p></div><img class="carta" src ="'+ 'http://www.clashapi.xyz/images/cards/' + objeto_json[i].idName +'.png"' +
+						'/></div>';
+					}
+					cont++;
+				}
+			}
+			document.getElementById("resultado").innerHTML=cartas;
 		}
 	}
 }

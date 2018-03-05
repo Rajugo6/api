@@ -1,0 +1,100 @@
+body{
+    background: #eed359;
+}
+#top{
+    width: 100%;
+    height: auto;
+    background-color: #78daf8;
+}
+#filtros{
+    margin-top: 0.5%;
+    width: 100%;
+}
+#cabecera{
+
+    margin: 0.5%;
+    margin-left: 42.5%;
+    width: 15%;
+    height: auto;
+}
+h1{
+    float: right;
+    margin-right: 25%;
+}
+.boton_1{
+    text-decoration: none;
+    padding: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-family: helvetica;
+    font-style: italic;
+    color: #7e2ee7;
+    background-color: #fffc48;
+    border-radius: 15px;
+    border: 3px double #7e2ee7;
+}
+.boton_2{
+    text-decoration: none;
+    padding: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-family: helvetica;
+    font-style: italic;
+    color: #69e72e;
+    background-color: #5044f1;
+    border-radius: 15px;
+    border: 3px double #69e72e;
+}
+.cartaArena
+{
+    width:10%;
+    margin: 0.5%;
+    height: auto;
+}
+.carta{
+    margin-top: 0.5%;
+    width: 25%;
+    height: auto;
+}
+#resultado{
+    float: left;
+    margin-top: 2%;
+    width: 100%;
+}
+#cartas{
+    width: 60%;
+    float: right;
+}
+#informacion{
+    margin-left: 0.5%;
+    margin-right: 2%;
+    width: 30%;
+    float: left;
+}
+#arena{
+    width: 30%;
+    height: auto;
+}
+.fila{
+    background-color: beige;
+    margin-top: 0.5%;
+	width:100%;
+    border: 1px solid black;
+    float: left;
+}
+.filaFiltrosImpar{
+    background-color: beige;
+    margin-top: 0.5%;
+    width: 49%;
+    border: 1px solid black;
+    float: right;
+    height: 250px;
+}
+.filaFiltrosPar{
+    background-color: beige;
+    width: 49%;
+    margin-top: 0.5%;
+    border: 1px solid black;
+    float: left;
+    height: 250px;
+}
