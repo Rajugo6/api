@@ -78,6 +78,7 @@ h1{
 .fila{
     background-color: beige;
     margin-top: 0.5%;
+	margin-bottom: 0.5%;
 	width:100%;
     border: 1px solid black;
     float: left;
@@ -85,6 +86,7 @@ h1{
 .filaFiltrosImpar{
     background-color: beige;
     margin-top: 0.5%;
+	margin-bottom: 0.5%;
     width: 49%;
     border: 1px solid black;
     float: right;
@@ -94,6 +96,7 @@ h1{
     background-color: beige;
     width: 49%;
     margin-top: 0.5%;
+	margin-bottom: 0.5%;
     border: 1px solid black;
     float: left;
     height: 250px;
